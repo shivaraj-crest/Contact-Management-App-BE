@@ -7,7 +7,7 @@ require("dotenv").config();
 
 exports.register = async (req,res) =>{
     try{
-        const {username, email,phone,password} = req.body;
+        const {username,email,password} = req.body;
 
         
         const existingUser = await users.findOne(
@@ -24,7 +24,6 @@ exports.register = async (req,res) =>{
         const userVal = await users.create({
             username,
             email,
-            phone,
             password: hashedPassword,
         });
 
@@ -78,13 +77,13 @@ exports.login = async (req,res) =>{
         if(!isMatch){
             return res.status(400).json("Invalid credentials");
         }
-
+        
         const token = jwt.sign(
             {id: userVal.id},
             process.env.JWT_SECRET,
             {expiresIn: "30d"}
         );
-        res.status(200).json({message:"Login Successful",token});
+        res.status(200).json({message:"Login Successful", token, userId: userVal.id});
     }catch(error){
         res.status(500).json({error: error.message});
     }

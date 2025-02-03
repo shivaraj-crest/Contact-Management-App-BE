@@ -4,6 +4,7 @@ const createContact = async (req, res) => {
     try{
         
         const userId = req.query.userId;
+        console.log('hellooooo userId',userId)
         const {name,email,phone} = req.body;
         const contact = await contacts.create({name,email,phone,userId});
         res.status(200).json({message: "Contact created successfully", contact});
