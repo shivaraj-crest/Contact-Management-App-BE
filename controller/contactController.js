@@ -1,8 +1,9 @@
-const { contacts } = require('../models');
+const { contacts,users } = require('../models');
 
 const createContact = async (req, res) => {
     try{
         
+
         const userId = req.query.userId;
         console.log('hellooooo userId',userId)
         const {name,email,phone} = req.body;
@@ -39,8 +40,8 @@ const updateContact = async (req, res) => {
 
 const deleteContact = async (req, res) => {
     try{
-        const userId = req.query.userId;
-        const {id} = req.body;
+        const {userId,id} = req.query;
+       console.log('userIddddddddddd',req.id)
         console.log(`Attempting to delete contact with ID: ${id} for user ID: ${userId}`);
         const contact = await contacts.destroy({where:{id,userId}});
 
@@ -50,9 +51,23 @@ const deleteContact = async (req, res) => {
     }
 }
 
+const getContactById = async (req, res) => {
+    try{
+        const {id} = req.params;
+        const contact = await users.findByPk(id);
+        console.log('contacttt',contact)
+        res.status(200).json({message: "Contact fetched successfully", contact});
+    }catch(error){
+        res.status(500).json({message: "Internal server error", error: error.message});
+    }
+}
+
+
 module.exports = {
     createContact,
     getContact,
     updateContact,
-    deleteContact
+    deleteContact,
+    getContactById
 };
+

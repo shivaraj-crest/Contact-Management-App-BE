@@ -5,31 +5,39 @@ const { request } = require('express');
 
 require("dotenv").config();
 
-exports.register = async (req,res) =>{
-    try{
-        const {username,email,password} = req.body;
+exports.register = async (req, res) => {
+    const { username, email, password } = req.body;
 
-        
-        const existingUser = await users.findOne(
-            {where: {email}}
-        );
-
-
-        if(existingUser){
-            return res.status(400).json({message: "Email already exists"})
+    try {
+        // Check if username already exists
+        const existingUserByUsername = await users.findOne({ where: { username } });
+        if (existingUserByUsername) {
+            return res.status(400).json({ 
+                errors: [
+                    { field: 'username', message: 'Username is already taken' }
+                ]
+            });
         }
 
-        const hashedPassword = await bcrypt.hash(password,10);
+        // Check if email already exists
+        const existingUserByEmail = await users.findOne({ where: { email } });
+        if (existingUserByEmail) {
+            return res.status(400).json({ 
+                errors: [
+                    { field: 'email', message: 'Email is already taken' }
+                ]
+            });
+        }
 
+        // Proceed with user registration
+        const hashedPassword = await bcrypt.hash(password, 10);
         const userVal = await users.create({
             username,
             email,
             password: hashedPassword,
         });
 
-
-        res.status(201).json({message: "User created successfully",userVal});
-
+        res.status(201).json({ message: 'User registered successfully', userVal });
     } catch (error) {
         if (error.name === 'SequelizeValidationError') {
             console.error('Validation Errors:', error.errors.map(e => 
